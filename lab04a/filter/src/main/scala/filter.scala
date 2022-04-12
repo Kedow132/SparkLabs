@@ -9,7 +9,7 @@ class filter {
                                   .appName("lab04a")
                                   .getOrCreate()
 
-    val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
+    var kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
                             "subscribe" -> spark.conf.get("spark.filter.topic_name"),
                             "maxOffsetsPerTrigger" -> "30",
                             "minPartitions" -> "5")
