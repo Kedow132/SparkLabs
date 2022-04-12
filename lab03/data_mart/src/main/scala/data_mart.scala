@@ -55,7 +55,6 @@ class data_mart extends App {
           regexp_replace(col("category"), "\\s{1,10}|-{1,10}", "_")
         )))
       .withColumnRenamed("category", "category_shop")
-      .filter(col("event_type") === "view")
       .dropDuplicates(Seq("uid", "timestamp"))
 
     val preparedCategoriesPostgreDF = postgreDF
@@ -73,7 +72,6 @@ class data_mart extends App {
         .withColumn("url",
           regexp_replace(
             col("url"), "(^www.)|(^((http[s]?://){1,5}([w]{3}(\\.?)\\.)?)|(/.*$))", ""))
-        .dropDuplicates
 
     val cassDfClassificated = cassDf
       .withColumn("age",
@@ -91,7 +89,7 @@ class data_mart extends App {
       .agg(count("*"))
 
     val b = jsonDfWithCleanUrl
-      .join(preparedCategoriesPostgreDF, Seq("url"), "inner")
+      .join(preparedCategoriesPostgreDF, Seq("url"), "right")
       .groupBy("uid")
       .pivot("category_web")
       .agg(count("*"))
@@ -100,10 +98,10 @@ class data_mart extends App {
       .join(b, Seq("uid"), "left")
       .join(a, Seq("uid"), "left")
 
-    val urlOutput =  "jdbc:postgresql://10.0.0.31:5432/danila_logunov"
+    val urlOutput = "jdbc:postgresql://10.0.0.31:5432/danila_logunov"
     val postgresOptionsOutput = Map("url" -> urlOutput, "user" -> "danila_logunov",
-      "password" -> "494EzDF2", "dbtable" -> "clients",
-      "driver" -> "org.postgresql.Driver")
+                                    "password" -> "494EzDF2", "dbtable" -> "clients",
+                                    "driver" -> "org.postgresql.Driver")
     result
       .write
       .format("jdbc")
