@@ -33,14 +33,14 @@ class filter {
     formattedDf.filter(col("action_type") === "view")
         .write
         .format("json")
-        .option("path", s"/user/danila.logunov/${path}/view")
+        .option("path", s"file://user/danila.logunov/${path}/view")
         .partitionBy("p_date")
         .save
 
     formattedDf.filter(col("event_type") === "buy")
       .write
       .format("json")
-      .option("path", s"/user/danila.logunov/${path}/buy")
+      .option("path", s"file://user/danila.logunov/${path}/buy")
       .partitionBy("p_date")
       .save
 
