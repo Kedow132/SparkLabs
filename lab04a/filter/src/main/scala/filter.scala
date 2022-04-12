@@ -8,11 +8,15 @@ class filter {
                                   .builder()
                                   .appName("lab04a")
                                   .getOrCreate()
+
     val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
                             "subscribe" -> spark.conf.get("spark.filter.topic_name"),
-                            "startingOffsets" -> spark.conf.get("spark.filter.offset"),
                             "maxOffsetsPerTrigger" -> "30",
                             "minPartitions" -> "5")
+    kafkaOptions += ("startingOffsets" -> spark.conf.get("spark.filter.offset"))
+    try {spark.conf.get("spark.filter.offset").foreach {
+      x => kafkaOptions = kafkaOptions.updated("startingOffsets", s"""{${spark.conf.get("spark.filter.topic_name")}: {"0": $x}}""")
+    }}
     val df = spark.read.format("kafka").options(kafkaOptions).load
 
     val schema = StructType(Seq(
