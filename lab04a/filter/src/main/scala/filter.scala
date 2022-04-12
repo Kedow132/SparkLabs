@@ -12,8 +12,8 @@ class filter {
     var kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
                             "subscribe" -> spark.conf.get("spark.filter.topic_name"),
                             "maxOffsetsPerTrigger" -> "30",
+                            "startingOffsets" -> spark.conf.get("spark.filter.offset"),
                             "minPartitions" -> "5")
-    kafkaOptions += ("startingOffsets" -> spark.conf.get("spark.filter.offset"))
     try {spark.conf.get("spark.filter.offset").foreach {
       x => kafkaOptions = kafkaOptions.updated("startingOffsets", s"""{${spark.conf.get("spark.filter.topic_name")}: {"0": $x}}""")
     }}
