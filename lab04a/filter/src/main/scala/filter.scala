@@ -41,7 +41,7 @@ object filter {
       .withColumn("p_date", col("date"))
 
 
-    formattedDf.filter(col("action_type") === "view")
+    formattedDf.filter(col("event_type") === "view")
         .write
         .format("json")
         .mode("overwrite")
