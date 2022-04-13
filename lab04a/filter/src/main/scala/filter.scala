@@ -12,7 +12,7 @@ object filter {
     spark.conf.set("spark.sql.session.timeZone", "UTC")
     val offsetRaw = spark.conf.get("spark.filter.offset", "earliest")
     val topic = spark.conf.get("spark.filter.topic_name", "lab04_input_data")
-    val path = spark.conf.get("spark.filer.output_dir_prefix", "/user/danila.logunov/visits")
+    val path = spark.conf.get("spark.filter.output_dir_prefix", "/user/danila.logunov/visits")
 
     val offset: String = Try(offsetRaw.toInt)
       match {
@@ -45,17 +45,15 @@ object filter {
         .write
         .format("json")
         .mode("overwrite")
-        .option("path", s"${path}/view")
         .partitionBy("p_date")
-        .save
+        .save(path + "/buy")
 
     formattedDf.filter(col("event_type") === "buy")
       .write
       .format("json")
       .mode("overwrite")
-      .option("path", s"${path}/buy")
       .partitionBy("p_date")
-      .save
+      .save(path + "/buy")
 
     spark.stop()
   }
