@@ -2,21 +2,28 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
-class filter {
+object filter {
   def main(): Unit = {
     val spark: SparkSession = SparkSession
                                   .builder()
                                   .appName("lab04a")
                                   .getOrCreate()
+    spark.conf.set("spark.sql.session.timeZone", "UTC")
+    val offsetRaw = spark.conf.get("spark.filter.offset")
+    val topic = spark.conf.get("spark.filter.topic_name")
 
+    val offset: String = if (offsetRaw.equals("earliest")) {
+      "earliest"
+    }
+    else {
+      s"""{${topic}: \"0\": ${offsetRaw}}"""
+    }
     var kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
-                            "subscribe" -> spark.conf.get("spark.filter.topic_name"),
+                            "subscribe" -> topic,
                             "maxOffsetsPerTrigger" -> "30",
-                            "startingOffsets" -> spark.conf.get("spark.filter.offset"),
+                            "startingOffsets" -> offset,
                             "minPartitions" -> "5")
-    try {spark.conf.get("spark.filter.offset").foreach {
-      x => kafkaOptions = kafkaOptions.updated("startingOffsets", s"""{${spark.conf.get("spark.filter.topic_name")}: {"0": $x}}""")
-    }}
+
     val df = spark.read.format("kafka").options(kafkaOptions).load
 
     val schema = StructType(Seq(
