@@ -21,9 +21,7 @@ object filter {
       }
     val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
                             "subscribe" -> topic,
-                            "maxOffsetsPerTrigger" -> "30",
-                            "startingOffsets" -> offset,
-                            "minPartitions" -> "5")
+                            "startingOffsets" -> offset)
 
     val df = spark.read.format("kafka").options(kafkaOptions).load
 
@@ -46,7 +44,7 @@ object filter {
         .format("json")
         .mode("overwrite")
         .partitionBy("p_date")
-        .save(path + "/buy")
+        .save(path + "/view")
 
     formattedDf.filter(col("event_type") === "buy")
       .write
