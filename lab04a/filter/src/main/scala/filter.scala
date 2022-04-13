@@ -16,7 +16,7 @@ object filter {
 
     val offset: String = Try(offsetRaw.toInt)
       match {
-      case Success(v) => s"""{\"${topic}\":{\"0\":${offsetRaw}}}"""
+      case Success(v) => s"""{\"${topic}\":{\"0\":${v}}}"""
       case Failure(_) => offsetRaw
       }
     val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
