@@ -3,7 +3,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
 class filter {
-  def sparkJob(): Unit = {
+  def main(): Unit = {
     val spark: SparkSession = SparkSession
                                   .builder()
                                   .appName("lab04a")
@@ -50,5 +50,4 @@ class filter {
 
     spark.stop()
   }
-  sparkJob()
 }
