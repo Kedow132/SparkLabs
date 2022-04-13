@@ -3,7 +3,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
 
 object filter {
-  def main(): Unit = {
+  def main(args: Array[String]): Unit = {
     val spark: SparkSession = SparkSession
                                   .builder()
                                   .appName("lab04a")
