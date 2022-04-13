@@ -1,6 +1,7 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
+import scala.util._
 
 object filter {
   def main(args: Array[String]): Unit = {
@@ -9,16 +10,16 @@ object filter {
                                   .appName("lab04a")
                                   .getOrCreate()
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-    val offsetRaw = spark.conf.get("spark.filter.offset")
-    val topic = spark.conf.get("spark.filter.topic_name")
+    val offsetRaw = spark.conf.get("spark.filter.offset", "earliest")
+    val topic = spark.conf.get("spark.filter.topic_name", "lab04_input_data")
+    val path = spark.conf.get("spark.filer.output_dir_prefix", "/user/danila.logunov/visits")
 
-    val offset: String = if (offsetRaw.equals("earliest")) {
-      "earliest"
-    }
-    else {
-      s"""{${topic}: \"0\": ${offsetRaw}}"""
-    }
-    var kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
+    val offset: String = Try(offsetRaw.toInt)
+      match {
+      case Success(v) => s""" { "${topic}": { "0": ${v} }} """
+      case Failure(_) => offsetRaw
+      }
+    val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
                             "subscribe" -> topic,
                             "maxOffsetsPerTrigger" -> "30",
                             "startingOffsets" -> offset,
@@ -39,11 +40,11 @@ object filter {
       .withColumn("date", date_format(from_unixtime(col("timestamp") / 1000), "yyyyMMdd"))
       .withColumn("p_date", col("date"))
 
-    val path = spark.conf.get("spark.filter.output_dir_prefix")
 
     formattedDf.filter(col("action_type") === "view")
         .write
         .format("json")
+        .mode("overwrite")
         .option("path", s"file://user/danila.logunov/${path}/view")
         .partitionBy("p_date")
         .save
@@ -51,6 +52,7 @@ object filter {
     formattedDf.filter(col("event_type") === "buy")
       .write
       .format("json")
+      .mode("overwrite")
       .option("path", s"file://user/danila.logunov/${path}/buy")
       .partitionBy("p_date")
       .save
