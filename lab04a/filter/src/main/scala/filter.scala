@@ -45,7 +45,7 @@ object filter {
         .write
         .format("json")
         .mode("overwrite")
-        .option("path", s"file://user/danila.logunov/${path}/view")
+        .option("path", s"${path}/view")
         .partitionBy("p_date")
         .save
 
@@ -53,7 +53,7 @@ object filter {
       .write
       .format("json")
       .mode("overwrite")
-      .option("path", s"file://user/danila.logunov/${path}/buy")
+      .option("path", s"${path}/buy")
       .partitionBy("p_date")
       .save
 
