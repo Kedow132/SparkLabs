@@ -6,17 +6,6 @@ import org.apache.spark.sql.functions._
 
 object agg {
   def main(args: Array[String]): Unit = {
-    def createSink(chkName: String, mode: String, df: DataFrame) = {
-      df
-        .writeStream
-        .outputMode(mode)
-        .format("kafka")
-        .trigger(Trigger.ProcessingTime("5 seconds"))
-        .option("checkpointLocation", s"user/danila.logunov/chk/$chkName")
-        .option("kafka.bootstrap.servers", "10.0.0.5:6667")
-        .option("topic", "danila_logunov_lab04b_out")
-    }
-
     val spark: SparkSession = SparkSession
       .builder()
       .appName("lab04b")
@@ -46,13 +35,12 @@ object agg {
       .select(col("value").cast("string"))
       .withColumn("value", from_json(col("value"), schema))
       .select("value.*")
-      .na.drop(Seq("uid"))
       .withColumn("timestamp", (col("timestamp")  / 1000).cast("timestamp"))
-      .withWatermark("timestamp", "1 hour")
-      .groupBy(window(col("timestamp"), "1 hour").alias("wnd"))
+      .withWatermark("timestamp", "1 hours")
+      .groupBy(window(col("timestamp"), "1 hours").alias("wnd"))
       .agg(
         sum(when(col("event_type") === "buy", col("item_price"))).alias("revenue"),
-        count(col("uid")).alias("visitors"),
+        sum(when(col("uid").isNotNull, 1).otherwise(0)).alias("visitors"),
         count(when(col("event_type") === "buy", 1)).alias("purchases")
       )
       .select(to_json(struct(
@@ -64,8 +52,17 @@ object agg {
         (col("revenue").cast("float") / col("purchases").cast("float")).alias("aov")
       )).alias("json"))
 
-    val sink = createSink("chk1", "update", formattedDf)
 
-    sink.start.awaitTermination()
+    val writeDf = formattedDf
+      .writeStream
+      .trigger(Trigger.ProcessingTime("5 seconds"))
+      .format("kafka")
+      .option("checkpointLocation", "/tmp/chk/lab04b")
+      .option("kafka.bootstrap.server", "10.0.0.5:6667")
+      .option("topic", "danila_logunov_lab04b_out")
+      .option("maxOffsetPerTrigger", 200)
+      .outputMode("update")
+      .start()
+
   }
 }
