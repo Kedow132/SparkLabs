@@ -13,9 +13,8 @@ object agg {
         .format("kafka")
         .trigger(Trigger.ProcessingTime("5 seconds"))
         .option("checkpointLocation", s"user/danila.logunov/chk/$chkName")
-        .option("truncate", "false")
         .option("kafka.bootstrap.servers", "10.0.0.5:6667")
-        .option("subscribe", "danila_logunov_lab04b_out")
+        .option("topic", "danila_logunov_lab04b_out")
     }
 
     val spark: SparkSession = SparkSession
@@ -67,6 +66,6 @@ object agg {
 
     val sink = createSink("chk1", "update", formattedDf)
 
-    val sq = sink.start
+    sink.start.awaitTermination()
   }
 }
