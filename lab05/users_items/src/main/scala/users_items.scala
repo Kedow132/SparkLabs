@@ -26,7 +26,7 @@ object users_items {
     val dff = dfBuy
       .union(dfView)
       .withColumn("item_id", lower(regexp_replace(col("item_id"), "-{1,5}|\\s{1,5}}", "_")))
-      .withColumn("item_id", concat(col("event_type"), col("item_id")))
+      .withColumn("item_id", concat(col("event_type"), lit("_"), col("item_id")))
 
     val date = dff.select(col("date")).orderBy(col("date").desc).first().mkString
 
