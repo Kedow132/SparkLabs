@@ -21,7 +21,7 @@ object users_items {
     val dfView = spark
       .read
       .format("json")
-      .load("$inputDir/view/")
+      .load(s"$inputDir/view/")
 
     val dff = dfBuy
       .union(dfView)
