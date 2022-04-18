@@ -7,7 +7,7 @@ object features {
       .builder
       .appName("lab06")
       .getOrCreate()
-
+    spark.conf.set("spark.sql.session.timeZone", "UTC")
     val users_items: DataFrame = spark
       .read
       .format("parquet")
@@ -19,7 +19,7 @@ object features {
           .load("hdfs:///labs/laba03/weblogs.json")
           .withColumn("tmp", explode(col("visits")))
           .select("uid","tmp.*")
-          .withColumn("timestamp", to_utc_timestamp(from_unixtime(col("timestamp") / 1000), "UTC"))
+          .withColumn("timestamp", from_unixtime(col("timestamp") / 1000, "UTC"))
           .na.drop(Seq("uid"))
           .withColumn("url", lower(callUDF("parse_url", col("url"), lit("HOST"))))
           .withColumn("url", regexp_replace(col("url"), "www.", ""))
