@@ -15,13 +15,13 @@ class data_mart extends App {
     spark.conf.set("spark.cassandra.connection.port", "9042")
     spark.conf.set("spark.cassandra.output.consistency.level", "ANY")
     spark.conf.set("spark.cassandra.input.consistency.level", "ONE")
-    val url = "jdbc:postgresql://10.0.0.31:5432/labdata"
+    val url = "jdbc:postgres.url"
 
     val cassOptions = Map("table" -> "clients", "keyspace" -> "labdata")
     val postgresOptions = Map("url" -> url, "user" -> "danila_logunov",
-                              "password" -> "494EzDF2", "dbtable" -> "domain_cats",
+                              "password" -> "password", "dbtable" -> "domain_cats",
                               "driver" -> "org.postgresql.Driver")
-    val esOptions = Map("es.nodes" -> "10.0.0.31:9200",
+    val esOptions = Map("es.nodes" -> "elastic.ip",
                         "es.batch.write.refresh" -> "false",
                         "es.nodes.wan.only" -> "true")
 
@@ -98,9 +98,9 @@ class data_mart extends App {
       .join(b, Seq("uid"), "left")
       .join(a, Seq("uid"), "left")
 
-    val urlOutput = "jdbc:postgresql://10.0.0.31:5432/danila_logunov"
+    val urlOutput = "jdbc:postgres.url.output"
     val postgresOptionsOutput = Map("url" -> urlOutput, "user" -> "danila_logunov",
-                                    "password" -> "494EzDF2", "dbtable" -> "clients",
+                                    "password" -> "password", "dbtable" -> "clients",
                                     "driver" -> "org.postgresql.Driver")
     result
       .write

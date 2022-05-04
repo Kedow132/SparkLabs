@@ -12,7 +12,7 @@ object agg {
       .getOrCreate()
 
     val kafkaOptions: Map[String, String] = Map(
-      "kafka.bootstrap.servers" -> "spark-master-1:6667",
+      "kafka.bootstrap.servers" -> "kafka:ip",
       "subscribe" -> "danila_logunov"
     )
 
@@ -56,7 +56,7 @@ object agg {
       .trigger(Trigger.ProcessingTime("5 seconds"))
       .outputMode("update")
       .option("checkpointLocation", "/user/danila.logunov/tmp/chk/lab04b")
-      .option("kafka.bootstrap.servers", "spark-master-1:6667")
+      .option("kafka.bootstrap.servers", "kafka:ip")
       .option("topic", "danila_logunov_lab04b_out")
       .option("maxOffsetsPerTrigger", 200)
 

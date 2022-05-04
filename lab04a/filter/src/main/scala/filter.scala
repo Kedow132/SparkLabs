@@ -19,7 +19,7 @@ object filter {
       case Success(v) => s"""{\"${topic}\":{\"0\":${v}}}"""
       case Failure(_) => offsetRaw
       }
-    val kafkaOptions = Map("kafka.bootstrap.servers" -> "spark-master-1:6667",
+    val kafkaOptions = Map("kafka.bootstrap.servers" -> "kafka:ip",
                             "subscribe" -> topic,
                             "startingOffsets" -> offset)
 

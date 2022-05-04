@@ -15,7 +15,7 @@ object train {
 
     val readKafka = spark.conf.get("spark.test.inputKafka", "danila_logunov")
     val kafkaOptions: Map[String, String] = Map(
-      "kafka.bootstrap.servers" -> "spark-master-1:6667",
+      "kafka.bootstrap.servers" -> "kafka:ip",
       "subscribe" -> readKafka
     )
 
@@ -51,7 +51,7 @@ object train {
     val writeKafka = spark.conf.get("spark.test.outputKafka", "danila_logunov_lab07_out")
 
     val kafkaWriteOptions: Map[String, String] = Map(
-      "kafka.bootstrap.servers" -> "spark-master-1:6667",
+      "kafka.bootstrap.servers" -> "kafka:ip",
       "topic" -> writeKafka
     )
 
